@@ -3,7 +3,7 @@
 int
 in_mandelbrot(double complex c, int num_of_iterations)
 {
-    return stability(c, num_of_iterations) == 1;
+    return stability(c, num_of_iterations);
 }
 
 float
