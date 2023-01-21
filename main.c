@@ -7,7 +7,7 @@
 #define HEIGHT 1024
 #define ITERATIONS 500
 
-double SCALE =  0.0075;
+int number_of_threads = 12;
 SDL_Window* window;
 SDL_Renderer* renderer;
 SDL_Color fg = {128, 128, 128, SDL_ALPHA_OPAQUE};
@@ -21,26 +21,19 @@ typedef struct __range
     int end;
 } range;
 
-
 typedef struct __vec{
     double min;
     double max;
 } vec;
 
-// typedef struct __thread_args{
-//     vec Re;
-//     vec Im;
-//     range r;
-// }
+vec Re = {-2.5 , 1};
+vec Im = {-1 , 1};
 
 double
 lerp (vec v, double t)
 {
     return (1.0 - t) * v.min + t * v.max;
 }
-
-vec Re = {-2.5 , 1};
-vec Im = {-1 , 1};
 
 void
 zoom(double zoom)
@@ -63,8 +56,6 @@ zoom(double zoom)
     Im.min = newImMin;
 }
 
-int number_of_threads = 12;
-
 void *
 mandelbrot_thread(void *args)
 {
@@ -77,16 +68,15 @@ mandelbrot_thread(void *args)
         {
             double tX = (double)x/WIDTH;
             double tY = (double)y/HEIGHT;
-            // newX = Re.min + ((Re.max - Re.min) * x/WIDTH);
+
             newX = lerp(Re, tX);
-            // newY = Im.min + ((Im.max - Im.min) * y/HEIGHT);
             newY = lerp(Im, tY);
+
             double complex c = CMPLX(newX, newY);
             pixel_map[x + y * WIDTH] = escape_count(c, ITERATIONS)/(double)ITERATIONS;
         }
     }
 }
-
 
 void
 compute_parallel(pthread_t* threads, range* ranges)
@@ -145,19 +135,18 @@ main(int argc, char* argv[])
         SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
         SDL_RenderClear(renderer);
 
-
         for(y=0; y<HEIGHT; y++)
         {
             for(x=0; x<WIDTH; x++)
             {
-                // if(!pixel_map[x + y*WIDTH] > 0)
-                // {
-                    double color =  (1.0 - pixel_map[x + y*HEIGHT]) * 255.0;
-
-                    SDL_SetRenderDrawColor(renderer, color, color, color, fg.a);
-                    SDL_RenderDrawPoint(renderer, x, y);
-                    SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
-                // }
+                int color =  (1.0 - pixel_map[x + y*HEIGHT]) * 255.0;
+                SDL_SetRenderDrawColor(renderer,
+                                       color,
+                                       color,
+                                       color,
+                                       fg.a);
+                SDL_RenderDrawPoint(renderer, x, y);
+                SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
             }
         }
         while(SDL_PollEvent(&event))

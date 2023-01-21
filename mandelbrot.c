@@ -1,11 +1,5 @@
 #include "mandelbrot.h"
 
-int
-in_mandelbrot(double complex c, int num_of_iterations)
-{
-    return stability(c, num_of_iterations);
-}
-
 float
 stability(double complex c, int num_of_iterations)
 {
