@@ -1,99 +1,7 @@
-#include <SDL2/SDL.h>
-#include <stdlib.h>
-#include <error.h>
-#include <pthread.h>
 #include "mandelbrot.h"
-#define WIDTH 1024
-#define HEIGHT 1024
-#define ITERATIONS 500
 
-int number_of_threads = 12;
 SDL_Window* window;
 SDL_Renderer* renderer;
-SDL_Color fg = {128, 128, 128, SDL_ALPHA_OPAQUE};
-SDL_Color bg = {0, 0, 0, SDL_ALPHA_OPAQUE};
-
-double pixel_map[HEIGHT * WIDTH];
-
-typedef struct __range
-{
-    int start;
-    int end;
-} range;
-
-typedef struct __vec{
-    double min;
-    double max;
-} vec;
-
-vec Re = {-2.5 , 1};
-vec Im = {-1 , 1};
-
-double
-lerp (vec v, double t)
-{
-    return (1.0 - t) * v.min + t * v.max;
-}
-
-void
-zoom(double zoom)
-{
-    int mouseX, mouseY;
-    SDL_GetMouseState(&mouseX, &mouseY);
-    double newX, newY;
-    double tX = (double)mouseX/WIDTH;
-    double tY = (double)mouseY/HEIGHT;
-
-    newX = lerp(Re, tX);
-    newY = lerp(Im, tY);
-
-    double newReMin = newX - (Re.max - Re.min) / 2 / zoom;
-    Re.max = newX + ( Re.max - Re.min ) / 2 / zoom;
-    Re.min = newReMin;
-
-    double newImMin = newY - (Im.max - Im.min) / 2 / zoom;
-    Im.max = newY + ( Im.max - Im.min ) / 2 / zoom;
-    Im.min = newImMin;
-}
-
-void *
-mandelbrot_thread(void *args)
-{
-    range r = *((range *) args);
-	int y,x;
-    double newX, newY;
-    for(y=r.start; y<r.end; y++)
-    {
-        for(x=0; x<WIDTH; x++)
-        {
-            double tX = (double)x/WIDTH;
-            double tY = (double)y/HEIGHT;
-
-            newX = lerp(Re, tX);
-            newY = lerp(Im, tY);
-
-            double complex c = CMPLX(newX, newY);
-            pixel_map[x + y * WIDTH] = escape_count(c, ITERATIONS)/(double)ITERATIONS;
-        }
-    }
-}
-
-void
-compute_parallel(pthread_t* threads, range* ranges)
-{
-    int tid=0;
-    for(tid = 0; tid < number_of_threads; tid++)
-    {
-        ranges[tid].start = (HEIGHT/number_of_threads)*tid;
-        ranges[tid].end = (HEIGHT/number_of_threads)*(tid+1);
-        pthread_create(&threads[tid], NULL, &mandelbrot_thread, &ranges[tid]);
-    }
-
-    for(tid = 0; tid < number_of_threads; tid++)
-    {
-        pthread_join(threads[tid], 0);
-    }
-}
 
 int
 main(int argc, char* argv[])
@@ -135,16 +43,16 @@ main(int argc, char* argv[])
         SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
         SDL_RenderClear(renderer);
 
-        for(y=0; y<HEIGHT; y++)
+        for(y=1; y<HEIGHT; y++)
         {
-            for(x=0; x<WIDTH; x++)
+            for(x=1; x<WIDTH; x++)
             {
-                int color =  (1.0 - pixel_map[x + y*HEIGHT]) * 255.0;
+                SDL_Color color = pixel_map[x + y * HEIGHT];
                 SDL_SetRenderDrawColor(renderer,
-                                       color,
-                                       color,
-                                       color,
-                                       fg.a);
+                                       color.r,
+                                       color.g,
+                                       color.b,
+                                       SDL_ALPHA_OPAQUE);
                 SDL_RenderDrawPoint(renderer, x, y);
                 SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
             }
@@ -166,12 +74,9 @@ main(int argc, char* argv[])
                 {
                     zoom(0.2);
                 }
-
                 compute_parallel(threads, ranges);
             }
-
         }
-
         SDL_RenderPresent(renderer);
     }
 

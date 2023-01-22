@@ -1,4 +1,4 @@
-# Mandelbrot set using SDL2 and pthread (to be added)
+# Mandelbrot set using SDL2 and pthread
 
 ## Requirements
 
