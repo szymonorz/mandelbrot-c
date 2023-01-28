@@ -42,26 +42,32 @@ clerp(SDL_Color color1, SDL_Color color2, double t)
     return result;
 }
 
-SDL_Color
-escape_count(double complex c)
+int
+escape_count(double complex c, double complex * z)
 {
     int i;
-    double complex z = CMPLX(0,0);
     for(i=0; i<iterations; i++)
     {
-            z = z*z + c;
-            if(cabsf(z) > 2)
-            {
-                double iter = 1.0 * i;
-                // https://linas.org/art-gallery/escape/smooth.html
-                double mu = log(log(cabsf(z)))/log(2);
-                iter = iter + 1 - mu;
-                int colorId = (int)iter;
-                if(iter < 0) iter = 0;
-                SDL_Color color1 = colors[colorId % H];
-                SDL_Color color2 = colors[colorId % H + 1 < H ? colorId % H + 1 : H];
-                return clerp(color1, color2, iter - (int)iter);
-            }
+            *z = (*z) * (*z) + c;
+            if(cabsf(*z) > 2) break;
+    }
+    return i;
+}
+
+SDL_Color
+escape_color(int escape, double complex z)
+{
+    if(escape < iterations)
+    {
+        // https://linas.org/art-gallery/escape/smooth.html
+        double iter = 1.0 * escape;
+        double mu = log(log(cabsf(z)))/log(2);
+        iter = iter + 1 - mu;
+        int colorId = (int)iter;
+        if(iter < 0) iter = 0;
+        SDL_Color color1 = colors[colorId % H];
+        SDL_Color color2 = colors[colorId % H + 1 < H ? colorId % H + 1 : H];
+        return clerp(color1, color2, iter - (int)iter);
     }
     return bg;
 }
@@ -104,7 +110,9 @@ mandelbrot_thread(void *args)
             newY = lerp(Im, tY);
 
             double complex c = CMPLX(newX, newY);
-            pixel_map[x + y * WIDTH] = escape_count(c);
+            double complex z = CMPLX(0,0);
+            int escape = escape_count(c, &z);
+            pixel_map[x + y * WIDTH] = escape_color(escape, z);
         }
     }
 }

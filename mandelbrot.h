@@ -29,7 +29,8 @@ extern vec Re;
 extern vec Im;
 extern SDL_Color bg;
 
-SDL_Color escape_count(double complex c);
+int escape_count(double complex c, double complex * z);
+SDL_Color escape_color(int escape, double complex z);
 
 void zoom(double zoom);
 void * mandelbrot_thread(void *args);

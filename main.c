@@ -14,7 +14,6 @@ usage(char* name)
 int
 main(int argc, char* argv[])
 {
-
     int opt;
     iterations = 128; WIDTH = 512; HEIGHT = 512; thread_num = 4;
     while((opt = getopt(argc, argv, "h:w:i:t:")) != -1)
@@ -121,6 +120,7 @@ main(int argc, char* argv[])
         renderer = NULL;
     }
 
+    free(pixel_map);
     SDL_Quit();
     return EXIT_SUCCESS;
 }
