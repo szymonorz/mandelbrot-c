@@ -24,6 +24,7 @@ typedef struct __vec
 extern int thread_num;
 extern int iterations;
 extern int WIDTH, HEIGHT;
+extern int DEBUG;
 extern SDL_Color * pixel_map;
 extern vec Re;
 extern vec Im;

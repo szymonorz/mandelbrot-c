@@ -2,6 +2,7 @@
 int thread_num;
 int iterations;
 int WIDTH, HEIGHT;
+int DEBUG;
 SDL_Color * pixel_map;
 vec Re = {-2.5 , 1};
 vec Im = {-1 , 1};
@@ -121,6 +122,16 @@ void
 compute_parallel(pthread_t* threads, range* ranges)
 {
     int tid=0;
+    if(DEBUG)
+    {
+        fprintf(stderr,
+                "Iteration per pixel: %d\n"
+                "Real axis range: (%f,%f)\n"
+                "Imaginary axis range: (%f,%f)\n",
+                iterations,
+                Re.min, Re.max,
+                Im.min, Im.max);
+    }
     for(tid = 0; tid < thread_num; tid++)
     {
         ranges[tid].start = (HEIGHT/thread_num)*tid;

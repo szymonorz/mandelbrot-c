@@ -7,7 +7,7 @@ SDL_Renderer* renderer;
 void
 usage(char* name)
 {
-    fprintf(stderr, "Usage: %s [-w WIDTH] [-h HEIGHT] [-i ITERATIONS] [-t NUMBER OF THREADS]\n", name);
+    fprintf(stderr, "Usage: %s [-w WIDTH] [-h HEIGHT] [-i ITERATIONS] [-t NUMBER OF THREADS] [-d]\n", name);
     exit(EXIT_FAILURE);
 }
 
@@ -15,8 +15,8 @@ int
 main(int argc, char* argv[])
 {
     int opt;
-    iterations = 128; WIDTH = 512; HEIGHT = 512; thread_num = 4;
-    while((opt = getopt(argc, argv, "h:w:i:t:")) != -1)
+    iterations = 128; WIDTH = 512; HEIGHT = 512; thread_num = 4; DEBUG = 0;
+    while((opt = getopt(argc, argv, "h:w:i:t:d")) != -1)
     {
         switch(opt)
         {
@@ -24,6 +24,7 @@ main(int argc, char* argv[])
             case 'w': WIDTH = atoi(optarg); break;
             case 'i': iterations = atoi(optarg); break;
             case 't': thread_num = atoi(optarg); break;
+            case 'd': DEBUG = 1; break;
             default: usage(argv[0]); break;
         }
     }
@@ -34,7 +35,7 @@ main(int argc, char* argv[])
             return EXIT_FAILURE;
     }
 
-    window = SDL_CreateWindow("Window",
+    window = SDL_CreateWindow("Mandelbrot set SDL2",
                                      SDL_WINDOWPOS_CENTERED,
                                      SDL_WINDOWPOS_CENTERED,
                                      WIDTH,
@@ -50,6 +51,23 @@ main(int argc, char* argv[])
     }
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
+     if(renderer == NULL)
+    {
+        fprintf(stderr, "Unable to create renderer: %s", SDL_GetError());
+        SDL_Quit();
+        return EXIT_FAILURE;
+    }
+    if(DEBUG)
+    {
+        fprintf(stderr,
+                "Created window of size: %dx%d.\n"
+                "Using %d threads\n"
+                "Iterations per pixel: %d\n",
+                WIDTH, HEIGHT,
+                thread_num,
+                iterations);
+    }
+
     pixel_map = malloc(sizeof(SDL_Color) * HEIGHT * WIDTH);
 
     //Draw loop
@@ -98,7 +116,10 @@ main(int argc, char* argv[])
             {
                 switch(event.key.keysym.sym)
                 {
-                    case SDLK_q: iterations/=2; break;
+                    case SDLK_q: {
+                        // Clamping
+                        iterations = iterations != 1 ? iterations/2: 1;
+                    } break;
                     case SDLK_e: iterations*=2;break;
                 }
                 compute_parallel(threads, ranges);
@@ -119,6 +140,7 @@ main(int argc, char* argv[])
         SDL_DestroyRenderer(renderer);
         renderer = NULL;
     }
+    if(DEBUG) fprintf(stderr, "Quiting...\n");
 
     free(pixel_map);
     SDL_Quit();
