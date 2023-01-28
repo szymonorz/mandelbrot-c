@@ -1,11 +1,34 @@
 #include "mandelbrot.h"
+#include <unistd.h>
 
 SDL_Window* window;
 SDL_Renderer* renderer;
 
+void
+usage(char* name)
+{
+    fprintf(stderr, "Usage: %s [-w WIDTH] [-h HEIGHT] [-i ITERATIONS] [-t NUMBER OF THREADS]\n", name);
+    exit(EXIT_FAILURE);
+}
+
 int
 main(int argc, char* argv[])
 {
+
+    int opt;
+    iterations = 128; WIDTH = 512; HEIGHT = 512; thread_num = 4;
+    while((opt = getopt(argc, argv, "h:w:i:t:")) != -1)
+    {
+        switch(opt)
+        {
+            case 'h': HEIGHT = atoi(optarg); break;
+            case 'w': WIDTH = atoi(optarg); break;
+            case 'i': iterations = atoi(optarg); break;
+            case 't': thread_num = atoi(optarg); break;
+            default: usage(argv[0]); break;
+        }
+    }
+
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
     {
             fprintf(stderr, "Failed to init SDL2 %s", SDL_GetError());
@@ -28,6 +51,7 @@ main(int argc, char* argv[])
     }
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
+    pixel_map = malloc(sizeof(SDL_Color) * HEIGHT * WIDTH);
 
     //Draw loop
     SDL_Event event;
@@ -35,8 +59,8 @@ main(int argc, char* argv[])
     int running = 1;
     int x, y;
 
-    pthread_t threads[number_of_threads];
-    range ranges[number_of_threads];
+    pthread_t threads[thread_num];
+    range ranges[thread_num];
     compute_parallel(threads, ranges);
     while(running)
     {
@@ -66,13 +90,17 @@ main(int argc, char* argv[])
             }
             else if(event.type == SDL_MOUSEWHEEL)
             {
-                if(event.wheel.y > 0) //Zoom out
+                if(event.wheel.y > 0) zoom(2.0); //Zoom out
+                else if(event.wheel.y < 0) zoom(0.5); //Zoom in
+
+                compute_parallel(threads, ranges);
+            }
+            else if(event.type == SDL_KEYDOWN)
+            {
+                switch(event.key.keysym.sym)
                 {
-                    zoom(5.0);
-                }
-                else if(event.wheel.y < 0) //Zoom in
-                {
-                    zoom(0.2);
+                    case SDLK_q: iterations/=2; break;
+                    case SDLK_e: iterations*=2;break;
                 }
                 compute_parallel(threads, ranges);
             }
@@ -95,5 +123,4 @@ main(int argc, char* argv[])
 
     SDL_Quit();
     return EXIT_SUCCESS;
-
 }

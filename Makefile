@@ -1,5 +1,4 @@
 LDFLAGS += -lSDL2 -lm -lpthread
-DEPS = mandelbrot.h
 all: build
 
 build: mandelbrot.o main.o

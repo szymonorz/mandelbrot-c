@@ -6,15 +6,13 @@
 #include <error.h>
 #include <pthread.h>
 #include <complex.h>
-#define WIDTH 512
-#define HEIGHT 512
-#define ITERATIONS 1024
 #define H 16 // number of colors
 
 typedef struct __range
 {
     int start;
     int end;
+    int iterations;
 } range;
 
 typedef struct __vec
@@ -23,13 +21,15 @@ typedef struct __vec
     double max;
 } vec;
 
-extern int number_of_threads;
-extern SDL_Color pixel_map[HEIGHT * WIDTH];
+extern int thread_num;
+extern int iterations;
+extern int WIDTH, HEIGHT;
+extern SDL_Color * pixel_map;
 extern vec Re;
 extern vec Im;
 extern SDL_Color bg;
 
-SDL_Color escape_count(double complex c, int num_of_iterations);
+SDL_Color escape_count(double complex c);
 
 void zoom(double zoom);
 void * mandelbrot_thread(void *args);
