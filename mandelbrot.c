@@ -7,6 +7,7 @@ SDL_Color * pixel_map;
 vec Re = {-2.5 , 1};
 vec Im = {-1 , 1};
 SDL_Color bg = {0, 0, 0, SDL_ALPHA_OPAQUE};
+// paleta kolorów taka sama bądź przybliżona do tej jak na Ultra Fractal
 SDL_Color colors[H] = {
     {66,   30,   15, SDL_ALPHA_OPAQUE},  // brown 3
     {25,    7,   26, SDL_ALPHA_OPAQUE},  // dark violett
@@ -33,12 +34,14 @@ lerp (vec v, double t)
     return (1.0 - t) * v.min + t * v.max;
 }
 
+// interpolacja koloru
 SDL_Color
 clerp(SDL_Color color1, SDL_Color color2, double t)
 {
     vec r = {color1.r, color2.r};
     vec g = {color1.g, color2.g};
     vec b = {color1.b, color2.b};
+    // interpolujemy każdy kanał, pomijam alpha
     SDL_Color result = { lerp(r, t), lerp(g,t), lerp(b,t), SDL_ALPHA_OPAQUE };
     return result;
 }
@@ -119,8 +122,10 @@ mandelbrot_thread(void *args)
 }
 
 void
-compute_parallel(pthread_t* threads, range* ranges)
+compute_parallel(int thread_num)
 {
+    pthread_t threads[thread_num];
+    range ranges[thread_num];
     int tid=0;
     if(DEBUG)
     {
@@ -134,13 +139,20 @@ compute_parallel(pthread_t* threads, range* ranges)
     }
     for(tid = 0; tid < thread_num; tid++)
     {
-        ranges[tid].start = (HEIGHT/thread_num)*tid;
-        ranges[tid].end = (HEIGHT/thread_num)*(tid+1);
+        /*
+         * Rzutujemy najpierw na double a potem z powrotem na int aby nie tracić informacji
+         * w przypadkach gdy HEIGHT nie jest podzielne przez thread_num
+        */
+        ranges[tid].start = (int)((HEIGHT/(double)thread_num)*tid);
+        ranges[tid].end = (int)((HEIGHT/(double)thread_num)*(tid+1));
+        if(DEBUG)
+            fprintf(stderr,"[TID: %d]: start: %d, end: %d\n", tid, ranges[tid].start, ranges[tid].end);
         pthread_create(&threads[tid], NULL, &mandelbrot_thread, &ranges[tid]);
     }
 
     for(tid = 0; tid < thread_num; tid++)
     {
-        pthread_join(threads[tid], 0);
+        pthread_join(threads[tid], NULL);
+
     }
 }

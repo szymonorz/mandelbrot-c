@@ -15,7 +15,8 @@ int
 main(int argc, char* argv[])
 {
     int opt;
-    iterations = 128; WIDTH = 512; HEIGHT = 512; thread_num = 4; DEBUG = 0;
+    int thread_num = 4;
+    iterations = 128; WIDTH = 512; HEIGHT = 512; DEBUG = 0;
     while((opt = getopt(argc, argv, "h:w:i:t:d")) != -1)
     {
         switch(opt)
@@ -76,9 +77,7 @@ main(int argc, char* argv[])
     int running = 1;
     int x, y;
 
-    pthread_t threads[thread_num];
-    range ranges[thread_num];
-    compute_parallel(threads, ranges);
+    compute_parallel(thread_num);
     while(running)
     {
         SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
@@ -110,7 +109,7 @@ main(int argc, char* argv[])
                 if(event.wheel.y > 0) zoom(2.0); //Zoom out
                 else if(event.wheel.y < 0) zoom(0.5); //Zoom in
 
-                compute_parallel(threads, ranges);
+                compute_parallel(thread_num);
             }
             else if(event.type == SDL_KEYDOWN)
             {
@@ -122,7 +121,7 @@ main(int argc, char* argv[])
                     } break;
                     case SDLK_e: iterations*=2;break;
                 }
-                compute_parallel(threads, ranges);
+                compute_parallel(thread_num);
             }
         }
         SDL_RenderPresent(renderer);

@@ -6,6 +6,7 @@
 #include <error.h>
 #include <pthread.h>
 #include <complex.h>
+#include <time.h>
 #define H 16 // number of colors
 
 typedef struct __range
@@ -21,7 +22,6 @@ typedef struct __vec
     double max;
 } vec;
 
-extern int thread_num;
 extern int iterations;
 extern int WIDTH, HEIGHT;
 extern int DEBUG;
@@ -37,5 +37,5 @@ void zoom(double zoom);
 void * mandelbrot_thread(void *args);
 double lerp (vec v, double t);
 SDL_Color clerp(SDL_Color color1, SDL_Color color2, double t);
-void compute_parallel(pthread_t* threads, range* ranges);
+void compute_parallel(int thread_num);
 #endif
