@@ -8,14 +8,31 @@ usage(char* name)
     exit(EXIT_FAILURE);
 }
 
+void
+generate_filename(char* filename)
+{
+    time_t t = time(NULL);
+    struct tm *  tt = localtime(&t);
+    if(tt == NULL)
+    {
+        fprintf(stderr, "Error calling localtime\n");
+        exit(EXIT_FAILURE);
+    }
+    strftime(filename, 256, "result_%Y%m%d%H%M%S", tt);
+}
+
 int
 main(int argc, char* argv[])
 {
-    printf("Performing a benchmark on compute_parallel function....\n");
     iterations = 1024; WIDTH = 1024; HEIGHT = 1024;
     int MAX_THREADS=4;
     int opt;
-    while((opt = getopt(argc, argv, "h:w:i:t:d")) != -1)
+    char* table_header = "\"threads\" \"avg_seconds\"\n";
+    char* table_row = malloc(256 * sizeof(char));
+    char* filename = malloc(256  * sizeof(char));
+    generate_filename(filename);
+    FILE* result_file;
+    while((opt = getopt(argc, argv, "h:w:i:t:d:f:")) != -1)
     {
         switch(opt)
         {
@@ -24,14 +41,24 @@ main(int argc, char* argv[])
             case 'i': iterations = atoi(optarg); break;
             case 't': MAX_THREADS = atoi(optarg); break;
             case 'd': DEBUG = 1; break;
+            case 'f': {
+                if(strlen(optarg) > strlen(filename))
+                   filename = realloc(filename, strlen(optarg) * sizeof(char));
+                strcpy(filename, optarg);
+            }break;
             default: usage(argv[0]); break;
         }
     }
+    printf("Performing a benchmark on compute_parallel function....\n");
+    printf("Benchmark results will be written to %s\n", filename);
+    result_file = fopen(filename, "w");
+    fwrite(table_header, sizeof(char), strlen(table_header)*sizeof(char), result_file);
     pixel_map = malloc(sizeof(SDL_Color) * HEIGHT * WIDTH);
     int thread_num = 1;
     int i;
     clock_t start_time, finish_time;
     double execution_time, execution_time_avg;
+    int bytes;
     for(; thread_num <= MAX_THREADS; thread_num++)
     {
         printf("Iterations: %d. Threads: %d\n", iterations, thread_num);
@@ -46,5 +73,12 @@ main(int argc, char* argv[])
         }
         execution_time_avg = execution_time/10;
         fprintf(stderr, "Average time it took to compute the set: %f on %d thread(s)\n", execution_time_avg, thread_num);
+        bytes = sprintf(table_row, "\"%d\" \"%f\"\n", thread_num, execution_time_avg);
+        printf("Bytes = %d\n", bytes);
+        fwrite(table_row, sizeof(char), bytes*sizeof(char), result_file);
     }
+    fclose(result_file);
+    free(filename);
+
+    return EXIT_SUCCESS;
 }
