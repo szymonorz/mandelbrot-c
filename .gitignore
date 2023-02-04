@@ -2,3 +2,4 @@
 main
 benchmark
 result_*
+*.R
