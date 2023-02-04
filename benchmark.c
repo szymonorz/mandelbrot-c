@@ -27,7 +27,7 @@ main(int argc, char* argv[])
     iterations = 1024; WIDTH = 1024; HEIGHT = 1024;
     int MAX_THREADS=4;
     int opt;
-    char* table_header = "\"threads\" \"avg_seconds\"\n";
+    char* table_header = "\"threads\" \"execution_time\"\n";
     char* table_row = malloc(256 * sizeof(char));
     char* filename = malloc(256  * sizeof(char));
     generate_filename(filename);
@@ -57,7 +57,7 @@ main(int argc, char* argv[])
     int thread_num = 1;
     int i;
     clock_t start_time, finish_time;
-    double execution_time, execution_time_avg;
+    double execution_time = 0;
     int bytes;
     for(; thread_num <= MAX_THREADS; thread_num++)
     {
@@ -69,13 +69,10 @@ main(int argc, char* argv[])
             start_time = clock();
             compute_parallel(thread_num);
             finish_time = clock();
-            execution_time += ((double)(finish_time - start_time)/CLOCKS_PER_SEC)/thread_num;
+            execution_time = ((double)(finish_time - start_time)/CLOCKS_PER_SEC)/thread_num;
+            bytes = sprintf(table_row, "\"%d\" \"%f\"\n", thread_num, execution_time);
+            fwrite(table_row, sizeof(char), bytes*sizeof(char), result_file);
         }
-        execution_time_avg = execution_time/10;
-        fprintf(stderr, "Average time it took to compute the set: %f on %d thread(s)\n", execution_time_avg, thread_num);
-        bytes = sprintf(table_row, "\"%d\" \"%f\"\n", thread_num, execution_time_avg);
-        printf("Bytes = %d\n", bytes);
-        fwrite(table_row, sizeof(char), bytes*sizeof(char), result_file);
     }
     fclose(result_file);
     free(filename);
