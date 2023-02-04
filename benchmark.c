@@ -1,10 +1,13 @@
 #include "mandelbrot.h"
 #include <unistd.h>
 
+// unikanie błędu linkera
+double cY, cX;
+
 void
 usage(char* name)
 {
-    fprintf(stderr, "Usage: %s [-w WIDTH] [-h HEIGHT] [-i ITERATIONS] [-t MAX_THREADS] [-d]\n", name);
+    fprintf(stderr, "Usage: %s [-w WIDTH] [-h HEIGHT] [-i ITERATIONS] [-t MAX_THREADS] [-d] [-r RUNS]\n", name);
     exit(EXIT_FAILURE);
 }
 
@@ -32,7 +35,8 @@ main(int argc, char* argv[])
     char* filename = malloc(256  * sizeof(char));
     generate_filename(filename);
     FILE* result_file;
-    while((opt = getopt(argc, argv, "h:w:i:t:d:f:")) != -1)
+    int RUNS = 1;
+    while((opt = getopt(argc, argv, "h:w:i:t:d:f:r:")) != -1)
     {
         switch(opt)
         {
@@ -40,6 +44,7 @@ main(int argc, char* argv[])
             case 'w': WIDTH = atoi(optarg); break;
             case 'i': iterations = atoi(optarg); break;
             case 't': MAX_THREADS = atoi(optarg); break;
+            case 'r': RUNS = atoi(optarg); break;
             case 'd': DEBUG = 1; break;
             case 'f': {
                 if(strlen(optarg) > strlen(filename))
@@ -48,6 +53,11 @@ main(int argc, char* argv[])
             }break;
             default: usage(argv[0]); break;
         }
+    }
+    if(RUNS <= 0)
+    {
+        fprintf(stderr, "ERROR: RUNS must be greater than 0\n");
+        exit(EXIT_FAILURE);
     }
     printf("Performing a benchmark on compute_parallel function....\n");
     printf("Benchmark results will be written to %s\n", filename);
@@ -61,10 +71,10 @@ main(int argc, char* argv[])
     int bytes;
     for(; thread_num <= MAX_THREADS; thread_num++)
     {
-        printf("Iterations: %d. Threads: %d\n", iterations, thread_num);
+        printf("Iterations: %d. Threads: %d. Runs: %d\n", iterations, thread_num, RUNS);
         clock_t start_time = clock();
         execution_time = 0;
-        for(i=0; i<10; i++)
+        for(i=0; i<RUNS; i++)
         {
             start_time = clock();
             compute_parallel(thread_num);

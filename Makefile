@@ -7,7 +7,7 @@ build: mandelbrot.o main.o
 main.o: main.c mandelbrot.h
 	${CC} -c main.c
 run-benchmark: benchmark
-	./benchmark
+	./benchmark ${EXEC_FLAGS}
 benchmark: benchmark.o mandelbrot.o
 	${CC} ${LDFLAGS} ${CFLAGS} -o benchmark benchmark.o mandelbrot.o
 benchmark.o: benchmark.c mandelbrot.h
@@ -15,7 +15,7 @@ benchmark.o: benchmark.c mandelbrot.h
 mandelbrot.o: mandelbrot.c mandelbrot.h
 	${CC} -c mandelbrot.c
 clean:
-	rm *.o main
+	rm *.o main benchmark
 run:
 	./main
 
