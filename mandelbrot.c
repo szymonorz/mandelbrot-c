@@ -88,12 +88,16 @@ zoom(double zoom)
     newX = lerp(Re, tX);
     newY = lerp(Im, tY);
 
-    double newReMin = newX - ((Re.max - Re.min) / 2 / zoom);
-    Re.max = newX + (( Re.max - Re.min ) / 2 / zoom);
+    // Nowy środek układu współrzędnych
+    cX = ((Re.max - Re.min) / 2 / zoom);
+    cY = ((Im.max - Im.min) / 2 / zoom);
+
+    double newReMin = newX - cX;
+    Re.max = newX + cX;
     Re.min = newReMin;
 
-    double newImMin = newY - ((Im.max - Im.min) / 2 / zoom);
-    Im.max = newY + (( Im.max - Im.min ) / 2 / zoom);
+    double newImMin = newY - cY;
+    Im.max = newY + cY;
     Im.min = newImMin;
 }
 

@@ -1,8 +1,6 @@
 #include "mandelbrot.h"
 #include <unistd.h>
 
-SDL_Window* window;
-SDL_Renderer* renderer;
 
 void
 usage(char* name)
@@ -10,12 +8,22 @@ usage(char* name)
     fprintf(stderr, "Usage: %s [-w WIDTH] [-h HEIGHT] [-i ITERATIONS] [-t NUMBER OF THREADS] [-d]\n", name);
     exit(EXIT_FAILURE);
 }
+int THREADS;
+double cY, cX;
+
+void
+update_window_title(SDL_Window * window)
+{
+    char* window_title = calloc(256,sizeof(char));
+    sprintf(window_title, WINDOW_TITLE_FORMAT, WIDTH, HEIGHT, cX, cY, iterations, THREADS);
+    SDL_SetWindowTitle(window, window_title);
+}
 
 int
 main(int argc, char* argv[])
 {
     int opt;
-    int thread_num = 4;
+    THREADS = 4;
     iterations = 128; WIDTH = 512; HEIGHT = 512; DEBUG = 0;
     while((opt = getopt(argc, argv, "h:w:i:t:d")) != -1)
     {
@@ -24,19 +32,20 @@ main(int argc, char* argv[])
             case 'h': HEIGHT = atoi(optarg); break;
             case 'w': WIDTH = atoi(optarg); break;
             case 'i': iterations = atoi(optarg); break;
-            case 't': thread_num = atoi(optarg); break;
+            case 't': THREADS = atoi(optarg); break;
             case 'd': DEBUG = 1; break;
             default: usage(argv[0]); break;
         }
     }
+    SDL_Window* window;
+    SDL_Renderer* renderer;
 
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
     {
             fprintf(stderr, "Failed to init SDL2 %s", SDL_GetError());
             return EXIT_FAILURE;
     }
-
-    window = SDL_CreateWindow("Mandelbrot set SDL2",
+    window = SDL_CreateWindow("Window Title",
                                      SDL_WINDOWPOS_CENTERED,
                                      SDL_WINDOWPOS_CENTERED,
                                      WIDTH,
@@ -50,6 +59,8 @@ main(int argc, char* argv[])
         SDL_Quit();
         return EXIT_FAILURE;
     }
+
+    update_window_title(window);
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
      if(renderer == NULL)
@@ -65,7 +76,7 @@ main(int argc, char* argv[])
                 "Using %d threads\n"
                 "Iterations per pixel: %d\n",
                 WIDTH, HEIGHT,
-                thread_num,
+                THREADS,
                 iterations);
     }
 
@@ -77,7 +88,7 @@ main(int argc, char* argv[])
     int running = 1;
     int x, y;
 
-    compute_parallel(thread_num);
+    compute_parallel(THREADS);
     while(running)
     {
         SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
@@ -109,7 +120,8 @@ main(int argc, char* argv[])
                 if(event.wheel.y > 0) zoom(2.0); //Zoom out
                 else if(event.wheel.y < 0) zoom(0.5); //Zoom in
 
-                compute_parallel(thread_num);
+                compute_parallel(THREADS);
+                update_window_title(window);
             }
             else if(event.type == SDL_KEYDOWN)
             {
@@ -121,7 +133,8 @@ main(int argc, char* argv[])
                     } break;
                     case SDLK_e: iterations*=2;break;
                 }
-                compute_parallel(thread_num);
+                compute_parallel(THREADS);
+                update_window_title(window);
             }
         }
         SDL_RenderPresent(renderer);
