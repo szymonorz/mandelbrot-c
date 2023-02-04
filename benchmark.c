@@ -1,8 +1,4 @@
 #include "mandelbrot.h"
-#include <unistd.h>
-
-// unikanie błędu linkera
-double cY, cX;
 
 void
 usage(char* name)

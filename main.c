@@ -1,6 +1,4 @@
 #include "mandelbrot.h"
-#include <unistd.h>
-
 
 void
 usage(char* name)
@@ -8,8 +6,9 @@ usage(char* name)
     fprintf(stderr, "Usage: %s [-w WIDTH] [-h HEIGHT] [-i ITERATIONS] [-t NUMBER OF THREADS] [-d]\n", name);
     exit(EXIT_FAILURE);
 }
+
 int THREADS;
-double cY, cX;
+double cY=0, cX=0;
 
 void
 update_window_title(SDL_Window * window)
@@ -72,9 +71,10 @@ main(int argc, char* argv[])
     if(DEBUG)
     {
         fprintf(stderr,
-                "Created window of size: %dx%d.\n"
-                "Using %d threads\n"
-                "Iterations per pixel: %d\n",
+                "[main]:\n"
+                "\tCreated window of size: %dx%d.\n"
+                "\tUsing %d threads\n"
+                "\tIterations per pixel: %d\n",
                 WIDTH, HEIGHT,
                 THREADS,
                 iterations);
@@ -82,13 +82,14 @@ main(int argc, char* argv[])
 
     pixel_map = malloc(sizeof(SDL_Color) * HEIGHT * WIDTH);
 
-    //Draw loop
     SDL_Event event;
 
     int running = 1;
     int x, y;
 
     compute_parallel(THREADS);
+
+    // Pętla rysująca
     while(running)
     {
         SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
@@ -120,6 +121,8 @@ main(int argc, char* argv[])
                 if(event.wheel.y > 0) zoom(2.0); //Zoom out
                 else if(event.wheel.y < 0) zoom(0.5); //Zoom in
 
+                cX = (Re.max - Re.min)/2;
+                cY = (Im.max - Im.min)/2;
                 compute_parallel(THREADS);
                 update_window_title(window);
             }
@@ -140,7 +143,7 @@ main(int argc, char* argv[])
         SDL_RenderPresent(renderer);
     }
 
-    //Closing
+    // Zamykanie
     if(window != NULL)
     {
         SDL_DestroyWindow(window);

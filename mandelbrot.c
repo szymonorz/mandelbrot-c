@@ -89,8 +89,9 @@ zoom(double zoom)
     newY = lerp(Im, tY);
 
     // Nowy środek układu współrzędnych
-    cX = ((Re.max - Re.min) / 2 / zoom);
-    cY = ((Im.max - Im.min) / 2 / zoom);
+    double cX = ((Re.max - Re.min) / 2 / zoom);
+    double cY = ((Im.max - Im.min) / 2 / zoom);
+    if(DEBUG) fprintf(stderr, "[zoom]: center X: %f, center Y: %f\n", cX, cY);
 
     double newReMin = newX - cX;
     Re.max = newX + cX;
@@ -134,9 +135,10 @@ compute_parallel(int thread_num)
     if(DEBUG)
     {
         fprintf(stderr,
-                "Iteration per pixel: %d\n"
-                "Real axis range: (%f,%f)\n"
-                "Imaginary axis range: (%f,%f)\n",
+                "[compute_parallel]: \n"
+                "\tIteration per pixel: %d\n"
+                "\tReal axis range: (%f,%f)\n"
+                "\tImaginary axis range: (%f,%f)\n",
                 iterations,
                 Re.min, Re.max,
                 Im.min, Im.max);

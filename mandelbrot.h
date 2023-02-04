@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include <complex.h>
 #include <time.h>
+#include <unistd.h>
 #define H 16 // number of colors
 #define WINDOW_TITLE_FORMAT "Mandelbrot SDL2; size: %dx%d; center (%f, %f); iterations: %d; threads: %d"
 
@@ -30,8 +31,6 @@ extern SDL_Color * pixel_map;
 extern vec Re;
 extern vec Im;
 extern SDL_Color bg;
-extern double cY, cX;
-
 int escape_count(double complex c, double complex * z);
 SDL_Color escape_color(int escape, double complex z);
 
