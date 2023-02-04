@@ -27,8 +27,8 @@ main(int argc, char* argv[])
     int MAX_THREADS=4;
     int opt;
     char* table_header = "\"threads\" \"execution_time\"\n";
-    char* table_row = malloc(256 * sizeof(char));
-    char* filename = malloc(256  * sizeof(char));
+    char* table_row = calloc(256, sizeof(char));
+    char* filename = calloc(256, sizeof(char));
     generate_filename(filename);
     FILE* result_file;
     int RUNS = 1;
@@ -59,7 +59,7 @@ main(int argc, char* argv[])
     printf("Benchmark results will be written to %s\n", filename);
     result_file = fopen(filename, "w");
     fwrite(table_header, sizeof(char), strlen(table_header)*sizeof(char), result_file);
-    pixel_map = malloc(sizeof(SDL_Color) * HEIGHT * WIDTH);
+    pixel_map = calloc(HEIGHT * WIDTH, sizeof(SDL_Color));
     int thread_num = 1;
     int i;
     clock_t start_time, finish_time;

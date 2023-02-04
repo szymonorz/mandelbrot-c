@@ -80,13 +80,17 @@ main(int argc, char* argv[])
                 iterations);
     }
 
-    pixel_map = malloc(sizeof(SDL_Color) * HEIGHT * WIDTH);
+    pixel_map = calloc(HEIGHT * WIDTH, sizeof(SDL_Color));
 
     SDL_Event event;
 
     int running = 1;
     int x, y;
-
+    vec * axises = calloc(2, sizeof(vec));
+    vec Re = {-2.5 , 1};
+    vec Im = {-1 , 1};
+    axises[0] = Re;
+    axises[1] = Im;
     compute_parallel(THREADS);
 
     // Pętla rysująca
@@ -118,9 +122,11 @@ main(int argc, char* argv[])
             }
             else if(event.type == SDL_MOUSEWHEEL)
             {
-                if(event.wheel.y > 0) zoom(2.0); //Zoom out
-                else if(event.wheel.y < 0) zoom(0.5); //Zoom in
+                if(event.wheel.y > 0) zoom(2.0, &axises); //Zoom out
+                else if(event.wheel.y < 0) zoom(0.5, &axises); //Zoom in
 
+                Re = axises[0];
+                Im = axises[1];
                 cX = (Re.max - Re.min)/2;
                 cY = (Im.max - Im.min)/2;
                 compute_parallel(THREADS);

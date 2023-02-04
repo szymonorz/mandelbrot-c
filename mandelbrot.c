@@ -77,14 +77,15 @@ escape_color(int escape, double complex z)
 }
 
 void
-zoom(double zoom)
+zoom(double zoom, vec ** axises)
 {
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     double newX, newY;
     double tX = (double)mouseX/WIDTH;
     double tY = (double)mouseY/HEIGHT;
-
+    Re = (*axises)[0];
+    Im = (*axises)[1];
     newX = lerp(Re, tX);
     newY = lerp(Im, tY);
 
@@ -100,6 +101,8 @@ zoom(double zoom)
     double newImMin = newY - cY;
     Im.max = newY + cY;
     Im.min = newImMin;
+    (*axises)[0] = Re;
+    (*axises)[1] = Im;
 }
 
 void *
