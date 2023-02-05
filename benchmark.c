@@ -3,7 +3,7 @@
 void
 usage(char* name)
 {
-    fprintf(stderr, "Usage: %s [-w WIDTH] [-h HEIGHT] [-i ITERATIONS] [-t MAX_THREADS] [-d] [-r RUNS]\n", name);
+    fprintf(stderr, "Usage: %s [-s SIZE] [-i ITERATIONS] [-t MAX_THREADS] [-d] [-r RUNS]\n", name);
     exit(EXIT_FAILURE);
 }
 

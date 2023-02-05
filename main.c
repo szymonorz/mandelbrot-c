@@ -3,7 +3,7 @@
 void
 usage(char* name)
 {
-    fprintf(stderr, "Usage: %s [-w WIDTH] [-h HEIGHT] [-i ITERATIONS] [-t NUMBER OF THREADS] [-d]\n", name);
+    fprintf(stderr, "Usage: %s [-s SIZE] [-i ITERATIONS] [-t NUMBER OF THREADS] [-d]\n", name);
     exit(EXIT_FAILURE);
 }
 
@@ -24,12 +24,11 @@ main(int argc, char* argv[])
     int opt;
     THREADS = 4;
     iterations = 128; WIDTH = 512; HEIGHT = 512; DEBUG = 0;
-    while((opt = getopt(argc, argv, "h:w:i:t:d")) != -1)
+    while((opt = getopt(argc, argv, "s:i:t:d")) != -1)
     {
         switch(opt)
         {
-            case 'h': HEIGHT = atoi(optarg); break;
-            case 'w': WIDTH = atoi(optarg); break;
+            case 's': HEIGHT = atoi(optarg); WIDTH=HEIGHT; break;
             case 'i': iterations = atoi(optarg); break;
             case 't': THREADS = atoi(optarg); break;
             case 'd': DEBUG = 1; break;
@@ -99,9 +98,9 @@ main(int argc, char* argv[])
         SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
         SDL_RenderClear(renderer);
 
-        for(y=1; y<HEIGHT; y++)
+        for(y=0; y<HEIGHT; y++)
         {
-            for(x=1; x<WIDTH; x++)
+            for(x=0; x<WIDTH; x++)
             {
                 SDL_Color color = pixel_map[x + y * HEIGHT];
                 SDL_SetRenderDrawColor(renderer,

@@ -90,8 +90,11 @@ zoom(double zoom, vec ** axises)
     newY = lerp(Im, tY);
 
     // Nowy środek układu współrzędnych
-    double cX = ((Re.max - Re.min) / 2 / zoom);
-    double cY = ((Im.max - Im.min) / 2 / zoom);
+    double cX = ((Re.max - Re.min) / 2.0 / zoom);
+    double cY = ((Im.max - Im.min) / 2.0 / zoom);
+    // Clamping
+    if(cX > 3) cX = 3;
+    if(cY > 3) cY = 3;
     if(DEBUG) fprintf(stderr, "[zoom]: center X: %f, center Y: %f\n", cX, cY);
 
     double newReMin = newX - cX;
@@ -162,6 +165,5 @@ compute_parallel(int thread_num)
     for(tid = 0; tid < thread_num; tid++)
     {
         pthread_join(threads[tid], NULL);
-
     }
 }
