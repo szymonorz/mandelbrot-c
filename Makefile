@@ -1,6 +1,6 @@
 LDFLAGS += -lSDL2 -lm -lpthread
 CFLAGS += -Wall -Werror -pedantic
-all: build
+all: build benchmark
 
 build: mandelbrot.o main.o
 	${CC} ${LDFLAGS} ${CFLAGS} -o main main.o mandelbrot.o
@@ -17,5 +17,5 @@ mandelbrot.o: mandelbrot.c mandelbrot.h
 clean:
 	rm *.o main benchmark
 run:
-	./main
+	./main ${EXEC_FLAGS}
 

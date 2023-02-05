@@ -3,3 +3,4 @@ main
 benchmark
 result_*
 *.R
+*.tex

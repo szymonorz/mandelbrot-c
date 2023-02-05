@@ -17,7 +17,7 @@ generate_filename(char* filename)
         fprintf(stderr, "Error calling localtime\n");
         exit(EXIT_FAILURE);
     }
-    strftime(filename, 256, "result_%Y%m%d%H%M%S", tt);
+    strftime(filename, 256, "result_%Y%m%d%H%M%S.txt", tt);
 }
 
 int
