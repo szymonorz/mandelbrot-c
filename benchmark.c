@@ -32,12 +32,11 @@ main(int argc, char* argv[])
     generate_filename(filename);
     FILE* result_file;
     int RUNS = 1;
-    while((opt = getopt(argc, argv, "h:w:i:t:d:f:r:")) != -1)
+    while((opt = getopt(argc, argv, "s:i:t:d:f:r:")) != -1)
     {
         switch(opt)
         {
-            case 'h': HEIGHT = atoi(optarg); break;
-            case 'w': WIDTH = atoi(optarg); break;
+            case 's': HEIGHT = atoi(optarg); WIDTH=HEIGHT; break;
             case 'i': iterations = atoi(optarg); break;
             case 't': MAX_THREADS = atoi(optarg); break;
             case 'r': RUNS = atoi(optarg); break;

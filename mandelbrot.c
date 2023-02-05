@@ -67,8 +67,8 @@ escape_color(int escape, double complex z)
         double iter = 1.0 * escape;
         double mu = log(log(cabsf(z)))/log(2);
         iter = iter + 1 - mu;
-        int colorId = (int)iter;
         if(iter < 0) iter = 0;
+        int colorId = (int)iter;
         SDL_Color color1 = colors[colorId % H];
         SDL_Color color2 = colors[colorId % H + 1 < H ? colorId % H + 1 : H];
         return clerp(color1, color2, iter - (int)iter);
